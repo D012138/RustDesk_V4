@@ -304,6 +304,18 @@ class _ConnectionPageState extends State<ConnectionPage>
   @override
   Widget build(BuildContext context) {
     final isOutgoingOnly = bind.isOutgoingOnly();
+
+      
+    if (bind.isIncomingOnly()) {
+      return Column(
+        children: [
+          Expanded(child: PeerTabPage()),          
+          const Divider(height: 1),
+          OnlineStatusWidget(),                    
+        ],
+      );
+    }
+    
     return Column(
       children: [
         Expanded(
