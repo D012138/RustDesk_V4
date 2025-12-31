@@ -306,7 +306,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     final isOutgoingOnly = bind.isOutgoingOnly();
 
       
-    if (bind.isIncomingOnly()) {
+    if (!bind.isIncomingOnly()) {
       return Column(
         children: [
           Expanded(child: PeerTabPage()),          
