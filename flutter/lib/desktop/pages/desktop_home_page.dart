@@ -71,61 +71,29 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   //   ));
   // }
 
+  
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
   super.build(context);
-  
-  // 获取ID和密码
-  final model = gFFI.serverModel;
-  
-  return Scaffold(
-    backgroundColor: Colors.white,
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 标题
-          Text(
-            'RustDesk',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 30),
-          
-          // ID显示
-          Text(
-            '本机ID:',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          SizedBox(height: 5),
-          Text(
-            model.serverId.text,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 15),
-          
-          // 密码显示
-          Text(
-            '连接密码:',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          SizedBox(height: 5),
-          Text(
-            model.serverPasswd.text,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          
-          // 刷新密码按钮
-          TextButton(
-            onPressed: () => bind.mainUpdateTemporaryPassword(),
-            child: Text('刷新密码'),
-          ),
-        ],
+  // 1. 仍然走原版逻辑，保证数据第一时间就绪
+  final isIncomingOnly = bind.isIncomingOnly(); // 保持原判断
+  // 2. 只保留左侧极简面板（ID+密码），右侧完全砍掉
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // 左侧 200 px 窄条，只放 ID 与密码
+      SizedBox(
+        width: 200,
+        child: buildLeftPane(context),
       ),
-    ),
+      // 右侧整个连接面板直接去掉
+      // if (!isIncomingOnly) const VerticalDivider(width: 1),
+      // if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
+    ],
   );
 }
 
+  
   Widget _buildBlock({required Widget child}) {
     return buildRemoteBlock(
         block: _block, mask: true, use: canBeBlocked, child: child);
@@ -234,6 +202,7 @@ Widget build(BuildContext context) {
       ),
     );
   }
+
 
   buildRightPane(BuildContext context) {
     return Container(
