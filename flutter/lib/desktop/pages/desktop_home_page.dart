@@ -56,20 +56,75 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
   final GlobalKey _childKey = GlobalKey();
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   super.build(context);
+  //   final isIncomingOnly = bind.isIncomingOnly();
+  //   return _buildBlock(
+  //       child: Row(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       buildLeftPane(context),
+  //       if (!isIncomingOnly) const VerticalDivider(width: 1),
+  //       if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
+  //     ],
+  //   ));
+  // }
+
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    final isIncomingOnly = bind.isIncomingOnly();
-    return _buildBlock(
-        child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildLeftPane(context),
-        if (!isIncomingOnly) const VerticalDivider(width: 1),
-        if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
-      ],
-    ));
-  }
+Widget build(BuildContext context) {
+  super.build(context);
+  
+  // 获取ID和密码
+  final model = gFFI.serverModel;
+  
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 标题
+          Text(
+            'RustDesk',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 30),
+          
+          // ID显示
+          Text(
+            '本机ID:',
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          SizedBox(height: 5),
+          Text(
+            model.serverId.text,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 15),
+          
+          // 密码显示
+          Text(
+            '连接密码:',
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          SizedBox(height: 5),
+          Text(
+            model.serverPasswd.text,
+            style: TextStyle(fontSize: 18),
+          ),
+          SizedBox(height: 20),
+          
+          // 刷新密码按钮
+          TextButton(
+            onPressed: () => bind.mainUpdateTemporaryPassword(),
+            child: Text('刷新密码'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Widget _buildBlock({required Widget child}) {
     return buildRemoteBlock(
