@@ -25,6 +25,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:window_size/window_size.dart' as window_size;
 import '../widgets/button.dart';
+import 'package:window_manager/window_manager.dart';
 
 class DesktopHomePage extends StatefulWidget {
   const DesktopHomePage({Key? key}) : super(key: key);
@@ -72,27 +73,41 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   // }
 
   
+//   @override
+//   Widget build(BuildContext context) {
+//   super.build(context);
+//   // 1. 仍然走原版逻辑，保证数据第一时间就绪
+//   final isIncomingOnly = bind.isIncomingOnly(); // 保持原判断
+//   // 2. 只保留左侧极简面板（ID+密码），右侧完全砍掉
+//   return Scaffold(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     appBar: _customTitleBar(), 
+//     backgroundColor: Colors.white,
+//     children: [
+//       // 左侧 200 px 窄条，只放 ID 与密码
+//       SizedBox(
+//         width: 200,
+//         child: buildLeftPane(context),
+//       ),
+//       // 右侧整个连接面板直接去掉
+//       // if (!isIncomingOnly) const VerticalDivider(width: 1),
+//       // if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
+//     ],
+//   );
+// }
+
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
   super.build(context);
-  // 1. 仍然走原版逻辑，保证数据第一时间就绪
-  final isIncomingOnly = bind.isIncomingOnly(); // 保持原判断
-  // 2. 只保留左侧极简面板（ID+密码），右侧完全砍掉
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // 左侧 200 px 窄条，只放 ID 与密码
-      SizedBox(
-        width: 200,
-        child: buildLeftPane(context),
-      ),
-      // 右侧整个连接面板直接去掉
-      // if (!isIncomingOnly) const VerticalDivider(width: 1),
-      // if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
-    ],
+  return Scaffold(
+    appBar: _customTitleBar(),
+    backgroundColor: Colors.white,
+    body: SizedBox(
+      width: 200,                 // 只保留窄条宽度
+      child: buildLeftPane(context),
+    ),
   );
 }
-
   
   Widget _buildBlock({required Widget child}) {
     return buildRemoteBlock(
@@ -718,9 +733,43 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
+  PreferredSizeWidget _customTitleBar() {
+  return PreferredSize(
+    preferredSize: const Size.fromHeight(28),
+    child: GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onPanStart: (_) => windowManager.startDragging(),
+      child: Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            const Text('RustDesk', style: TextStyle(fontSize: 13)),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.close, size: 16),
+              onPressed: () => windowManager.close(),
+              splashRadius: 16,
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+  
   @override
   void initState() {
     super.initState();
+    
+   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  await windowManager.setAsFrameless();  
+  await windowManager.setWindowButtonVisibility(false);   
+  await windowManager.setSize(const Size(350, 450));
+  await windowManager.setMinimumSize(const Size(350, 450));
+  await windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: false);
+  });
+    
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
       await gFFI.serverModel.fetchID();
       final error = await bind.mainGetError();
